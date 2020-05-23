@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=frpc
-PKG_VERSION:=0.32.1
-PKG_RELEASE:=20200403
+PKG_VERSION:=0.33.0
+PKG_RELEASE:=20200427
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
