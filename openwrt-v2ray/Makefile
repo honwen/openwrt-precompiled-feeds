@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v2ray
-PKG_VERSION:=4.27.5
-PKG_RELEASE:=20200902
+PKG_VERSION:=4.31.1
+PKG_RELEASE:=20201016
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -29,7 +29,7 @@ ifeq ($(ARCH),aarch64)
 endif
 
 PKG_SOURCE:=v2ray-linux-$(PKG_ARCH).zip
-PKG_SOURCE_URL:=https://github.com/v2ray/v2ray-core/releases/download/v$(PKG_VERSION)/
+PKG_SOURCE_URL:=https://github.com/v2fly/v2ray-core/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_HASH:=skip
 
