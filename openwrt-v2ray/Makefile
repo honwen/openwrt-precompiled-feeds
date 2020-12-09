@@ -39,7 +39,7 @@ define Package/v2ray
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=A platform for building proxies to bypass network restrictions.
-	URL:=https://github.com/v2ray/v2ray-core
+	URL:=https://github.com/v2fly/v2ray-core
 endef
 
 define Package/v2ray/description

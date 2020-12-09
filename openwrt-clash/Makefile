@@ -51,7 +51,7 @@ define Package/clash
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=A rule-based tunnel in Go.
-	URL:=https://github.com/clash/clash-core
+	URL:=https://github.com/Dreamacro/clash
 endef
 
 define Package/clash/description
