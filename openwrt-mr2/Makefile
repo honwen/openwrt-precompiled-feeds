@@ -58,7 +58,7 @@ define Build/Prepare
 endef
 
 define Build/Compile
-    echo "$(PKG_NAME)Compile Skiped!"
+    echo "$(PKG_NAME) Compile Skiped!"
 endef
 
 define Package/mr2/install

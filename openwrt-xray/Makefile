@@ -58,7 +58,7 @@ define Build/Prepare
 endef
 
 define Build/Compile
-	echo "$(PKG_NAME)Compile Skiped!"
+	echo "$(PKG_NAME) Compile Skiped!"
 	[ -f $(PKG_BUILD_DIR)/xray_softfloat ] && mv $(PKG_BUILD_DIR)/xray_softfloat $(PKG_BUILD_DIR)/xray || true
 endef
 
