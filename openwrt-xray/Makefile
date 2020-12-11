@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xray
-PKG_VERSION:=1.1.2
-PKG_RELEASE:=20201206
+PKG_VERSION:=1.1.3
+PKG_RELEASE:=20201211
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -48,6 +48,12 @@ define Package/xray
 	URL:=https://github.com/XTLS/Xray-core
 endef
 
+define Package/xray/config
+	config XRAY_GEO_DATA
+		depends on PACKAGE_xray
+		bool "Build GEO Data"
+endef
+
 define Package/xray/description
 	Project X originates from XTLS protocol, provides a set of network tools.
 endef
@@ -65,9 +71,11 @@ endef
 define Package/xray/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/xray $(1)/usr/bin
+ifeq ($(CONFIG_XRAY_GEO_DATA),y)
 	$(INSTALL_DIR) $(1)/etc/xray.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/geosite.dat $(1)/etc/xray.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/geoip.dat $(1)/etc/xray.d
+endif
 endef
 
 $(eval $(call BuildPackage,xray))
