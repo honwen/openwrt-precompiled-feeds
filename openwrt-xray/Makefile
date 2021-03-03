@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xray
-PKG_VERSION:=1.3.0
-PKG_RELEASE:=20210214
+PKG_VERSION:=1.3.1
+PKG_RELEASE:=20210302
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -72,9 +72,9 @@ define Package/xray/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/xray $(1)/usr/bin
 ifeq ($(CONFIG_XRAY_GEO_DATA),y)
-	$(INSTALL_DIR) $(1)/usr/share/xray
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/geosite.dat $(1)/usr/share/xray
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/geoip.dat $(1)/usr/share/xray
+	$(INSTALL_DIR) $(1)/opt/share/xray
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/geosite.dat $(1)/opt/share/xray
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/geoip.dat $(1)/opt/share/xray
 endif
 endef
 
