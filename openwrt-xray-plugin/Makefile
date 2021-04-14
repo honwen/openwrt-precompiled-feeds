@@ -65,10 +65,22 @@ define Build/Compile
 	echo "$(PKG_NAME)Compile Skipped!"
 endef
 
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	if [ -f /etc/uci-defaults/$(PKG_NAME) ]; then
+		( . /etc/uci-defaults/$(PKG_NAME) ) && \
+		rm -f /etc/uci-defaults/$(PKG_NAME)
+	fi
+fi
+exit 0
+endef
+
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME)_linux_$(BIN_ARCH) $(1)/usr/bin/$(PKG_NAME)
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/uci-defaults $(1)/etc/uci-defaults/$(PKG_NAME)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-

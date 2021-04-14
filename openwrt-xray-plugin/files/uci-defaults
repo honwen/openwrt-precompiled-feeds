@@ -1,0 +1,3 @@
+#!/bin/sh
+[ ! -f /usr/bin/v2ray-plugin ] && ln -sf xray-plugin /usr/bin/v2ray-plugin
+exit 0
