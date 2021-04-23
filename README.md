@@ -11,7 +11,7 @@ Some Precompiled Tools for OpenWrt
    tar xJf openwrt-sdk-18.06.1-ar71xx-tiny_gcc-7.3.0_musl.Linux-x86_64.tar.xz
    cd openwrt-sdk-*-ar71xx-*
    # 获取 precompiled-feeds Makefile
-   git clone https://github.com/chenhw2/openwrt-precompiled-feeds.git package/precompiled
+   git clone https://github.com/honwen/openwrt-precompiled-feeds.git package/precompiled
    # 选择要编译的包
    make menuconfig
    # 开始编译
