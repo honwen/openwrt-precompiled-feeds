@@ -2,8 +2,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gost-plugin
-PKG_VERSION:=1.7.0
-PKG_RELEASE:=4789d1f35a
+PKG_VERSION:=1.6.3
+PKG_RELEASE:=af4809e646
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -26,7 +26,7 @@ ifeq ($(ARCH),aarch64)
 endif
 
 PKG_SOURCE:=$(PKG_NAME)-linux-$(PKG_ARCH)-v$(PKG_VERSION)@$(PKG_RELEASE).tar.gz
-PKG_SOURCE_URL:=https://github.com/honwen/gost-plugin/releases/download/v$(PKG_VERSION)/
+PKG_SOURCE_URL:=https://github.com/maskedeken/gost-plugin/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)
 PKG_HASH:=skip
 
