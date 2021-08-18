@@ -28,10 +28,10 @@ ifeq ($(ARCH),x86_64)
 	PKG_ARCH:=64
 endif
 ifeq ($(ARCH),arm)
-	PKG_ARCH:=arm32_v6
+	PKG_ARCH:=arm32-v6
 endif
 ifeq ($(ARCH),aarch64)
-	PKG_ARCH:=arm64_v8a
+	PKG_ARCH:=arm64-v8a
 endif
 
 PKG_SOURCE:=Xray-linux-$(PKG_ARCH).zip
