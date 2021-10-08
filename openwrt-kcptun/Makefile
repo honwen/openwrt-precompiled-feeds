@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kcptun
-PKG_VERSION:=1.0.0
+PKG_VERSION:=1.1.0
 PKG_RELEASE:=20210922
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
@@ -58,6 +58,12 @@ define Package/$(PKG_NAME)
 	URL:=https://github.com/xtaci/kcptun
 endef
 
+define Package/$(PKG_NAME)/config
+	config KCPTUN_SERVER
+		depends on PACKAGE_kcptun
+		bool "Build server"
+endef
+
 define Package/$(PKG_NAME)/description
 	https://github.com/xtaci/kcptun
 endef
@@ -65,7 +71,9 @@ endef
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/kcpc $(1)/usr/bin/
+ifeq ($(CONFIG_KCPTUN_SERVER),y)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/kcps $(1)/usr/bin/
+endif
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
