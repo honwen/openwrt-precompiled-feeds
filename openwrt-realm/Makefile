@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=realm
-PKG_VERSION:=2.0.3
-PKG_RELEASE:=20210727
+PKG_VERSION:=2.0.4
+PKG_RELEASE:=20220101
 
 # refer: https://github.com/honwen/openwrt-realm/commit/1c42f16ba56440bffd3560aa5d1c8305f5d9e1c5
 PKG_LIBC:=musl
