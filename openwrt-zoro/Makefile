@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019-2021 honwen <https://github.com/honwen>
+# Copyright (C) 2019-2022 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,9 +7,9 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=mr2
-PKG_VERSION:=0.0.5
-PKG_RELEASE:=20210401
+PKG_NAME:=zoro
+PKG_VERSION:=0.1.0
+PKG_RELEASE:=20211230
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, i386, x86_64, mips, mipsel
@@ -34,36 +34,36 @@ ifeq ($(ARCH),x86_64)
 	PKG_ARCH:=_linux_amd64
 endif
 
-PKG_SOURCE:=mr2$(PKG_ARCH)
-PKG_SOURCE_URL:=https://github.com/txthinking/mr2/releases/download/v$(PKG_RELEASE)/
+PKG_SOURCE:=$(PKG_NAME)$(PKG_ARCH)
+PKG_SOURCE_URL:=https://github.com/txthinking/$(PKG_NAME)/releases/download/v$(PKG_RELEASE)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_RELEASE)
 PKG_HASH:=skip
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/mr2
+define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Expose local server to external network
-	URL:=https://github.com/txthinking/mr2
+	URL:=https://github.com/txthinking/zoro
 endef
 
-define Package/mr2/description
-	https://github.com/txthinking/mr2
+define Package/$(PKG_NAME)/description
+	https://github.com/txthinking/zoro
 endef
 
 define Build/Prepare
 	cp -f $(DL_DIR)/$(PKG_SOURCE) $(PKG_BUILD_DIR)/
-	mv $(DL_DIR)/$(PKG_SOURCE) $(DL_DIR)/mr2$(PKG_ARCH)-$(PKG_RELEASE)-$(PKG_RELEASE)
+	mv $(DL_DIR)/$(PKG_SOURCE) $(DL_DIR)/$(PKG_NAME)$(PKG_ARCH)-$(PKG_RELEASE)-$(PKG_RELEASE)
 endef
 
 define Build/Compile
     echo "$(PKG_NAME) Compile Skiped!"
 endef
 
-define Package/mr2/install
+define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mr2$(PKG_ARCH) $(1)/usr/bin/mr2
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME)$(PKG_ARCH) $(1)/usr/bin/$(PKG_NAME)
 endef
 
-$(eval $(call BuildPackage,mr2))
+$(eval $(call BuildPackage,$(PKG_NAME)))
