@@ -2,8 +2,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tcping
-PKG_VERSION:=0.2.0
-PKG_RELEASE:=c52d87c029
+PKG_VERSION:=0.2.1
+PKG_RELEASE:=84598f94d8
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
