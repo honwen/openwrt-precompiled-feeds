@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021 honwen <https://github.com/honwen>
+# Copyright (C) 2021-2022 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xray-plugin
-PKG_VERSION:=1.5.8
-PKG_RELEASE:=20220620
+PKG_VERSION:=1.5.9
+PKG_RELEASE:=20220716
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, i386, x86_64, mips, mipsel
