@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021 honwen <https://github.com/honwen>
+# Copyright (C) 2021-2022 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kcptun
 PKG_VERSION:=1.1.0
-PKG_RELEASE:=20210922
+PKG_RELEASE:=20220628
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
