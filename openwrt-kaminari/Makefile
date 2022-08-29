@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kaminari
-PKG_VERSION:=0.5.6
-PKG_RELEASE:=20220726
+PKG_VERSION:=0.5.7
+PKG_RELEASE:=20220829
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # TODO: ARCH: mips, arm-musl
