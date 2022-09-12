@@ -1,0 +1,4 @@
+#!/bin/sh
+[ ! -f /usr/bin/v2ray ] && ln -sf v2ray-sing /usr/bin/v2ray
+[ ! -f /usr/bin/xray ] && ln -sf v2ray-sing /usr/bin/xray
+exit 0

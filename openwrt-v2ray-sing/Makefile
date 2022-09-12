@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018-2022 honwen <https://github.com/honwen>
+# Copyright (C) 2022 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,9 +7,9 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=v2ray
-PKG_VERSION:=5.1.0
-PKG_RELEASE:=20220907
+PKG_NAME:=v2ray-sing
+PKG_VERSION:=5.0.16
+PKG_RELEASE:=20220627
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -35,7 +35,7 @@ ifeq ($(ARCH),aarch64)
 endif
 
 PKG_SOURCE:=v2ray-linux-$(PKG_ARCH).zip
-PKG_SOURCE_URL:=https://github.com/v2fly/v2ray-core/releases/download/v$(PKG_VERSION)/
+PKG_SOURCE_URL:=https://github.com/SagerNet/v2ray-core/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_HASH:=skip
 
@@ -61,9 +61,22 @@ define Build/Compile
 	echo "$(PKG_NAME) Compile Skiped!"
 endef
 
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	if [ -f /etc/uci-defaults/$(PKG_NAME) ]; then
+		( . /etc/uci-defaults/$(PKG_NAME) ) && \
+		rm -f /etc/uci-defaults/$(PKG_NAME)
+	fi
+fi
+exit 0
+endef
+
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/v2ray $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/v2ray $(1)/usr/bin/$(PKG_NAME)
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/uci-defaults $(1)/etc/uci-defaults/$(PKG_NAME)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
