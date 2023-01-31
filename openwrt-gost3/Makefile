@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022-2023 honwen <https://github.com/honwen>
+# Copyright (C) 2023 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,9 +7,9 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=gost
-PKG_VERSION:=2.11.5
-PKG_RELEASE:=20230120
+PKG_NAME:=gost3
+PKG_VERSION:=3.0.0-rc.4
+PKG_RELEASE:=20230131
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -38,7 +38,7 @@ ifeq ($(ARCH),x86_64)
 endif
 
 PKG_SOURCE:=gost-linux-$(PKG_ARCH)-$(PKG_VERSION).gz
-PKG_SOURCE_URL:=https://github.com/ginuerzh/gost/releases/download/v$(PKG_VERSION)/
+PKG_SOURCE_URL:=https://github.com/go-gost/gost/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_HASH:=skip
 
@@ -56,11 +56,11 @@ define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=GO Simple Tunnel
-	URL:=https://github.com/ginuerzh/gost
+	URL:=https://github.com/go-gost/gost
 endef
 
 define Package/$(PKG_NAME)/description
-	https://github.com/ginuerzh/gost
+	https://github.com/go-gost/gost
 endef
 
 define Package/$(PKG_NAME)/install
