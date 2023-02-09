@@ -44,12 +44,12 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
-	TITLE:=A platform for building proxies to bypass network restrictions.
-	URL:=https://github.com/v2fly/v2ray-core
+	TITLE:=A platform for building proxies.
+	URL:=https://github.com/SagerNet/v2ray-core
 endef
 
 define Package/$(PKG_NAME)/description
-	A platform for building proxies to bypass network restrictions.
+	A platform for building proxies.
 endef
 
 define Build/Prepare
