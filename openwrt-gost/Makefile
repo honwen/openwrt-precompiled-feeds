@@ -39,7 +39,7 @@ endif
 
 PKG_SOURCE:=gost-linux-$(PKG_ARCH)-$(PKG_VERSION).gz
 PKG_SOURCE_URL:=https://github.com/ginuerzh/gost/releases/download/v$(PKG_VERSION)/
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_ARCH)-$(PKG_VERSION)
 PKG_HASH:=skip
 
 include $(INCLUDE_DIR)/package.mk

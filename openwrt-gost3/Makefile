@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gost3
-PKG_VERSION:=3.0.0-rc5
-PKG_RELEASE:=20230202
+PKG_VERSION:=3.0.0-rc6
+PKG_RELEASE:=20230212
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -39,7 +39,7 @@ endif
 
 PKG_SOURCE:=gost_$(PKG_VERSION)_linux_$(PKG_ARCH).tar.gz
 PKG_SOURCE_URL:=https://github.com/go-gost/gost/releases/download/v$(PKG_VERSION)/
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_ARCH)-$(PKG_VERSION)
 PKG_HASH:=skip
 
 include $(INCLUDE_DIR)/package.mk
