@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xray-plugin
-PKG_VERSION:=1.8.0
+PKG_VERSION:=1.8.1
 PKG_RELEASE:=20230311
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
