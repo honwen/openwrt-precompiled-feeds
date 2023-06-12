@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kcptube
-PKG_VERSION:=0.1.5
-PKG_RELEASE:=20230427
+PKG_VERSION:=0.3
+PKG_RELEASE:=20230612
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)
@@ -17,15 +17,16 @@ ifeq ($(ARCH),x86_64)
 	PKG_ARCH:=x64
 endif
 
-PKG_SOURCE:=$(PKG_NAME)-linux-musl-$(PKG_ARCH).tar.gz
+PKG_SOURCE:=$(PKG_NAME)-linux-musl-$(PKG_ARCH).tar.bz2
 PKG_SOURCE_URL:=https://github.com/cnbatch/kcptube/releases/download/v$(PKG_VERSION)/
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(ARCH)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)-$(ARCH)
 PKG_HASH:=skip
 
 include $(INCLUDE_DIR)/package.mk
 
 define Build/Prepare
-	tar -C $(PKG_BUILD_DIR)/ -zxf $(DL_DIR)/$(PKG_SOURCE)
+	tar -C $(PKG_BUILD_DIR)/ -jxf $(DL_DIR)/$(PKG_SOURCE)
+	mv $(DL_DIR)/$(PKG_SOURCE) $(DL_DIR)/$(PKG_NAME)-linux-musl-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_ARCH).tar.gz
 endef
 
 define Build/Compile
