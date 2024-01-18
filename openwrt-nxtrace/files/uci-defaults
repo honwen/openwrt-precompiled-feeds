@@ -1,0 +1,4 @@
+#!/bin/sh
+[ ! -f /usr/bin/nexttrace ] && ln -sf nxtrace /usr/bin/nexttrace
+[ ! -f /usr/bin/besttrace ] && ln -sf nxtrace /usr/bin/besttrace
+exit 0
