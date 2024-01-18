@@ -40,7 +40,7 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
-	Yet another SIP003 plugin for shadowsocks, based on GOST Tunnel.
+	ping over a tcp connection.
 endef
 
 define Build/Prepare

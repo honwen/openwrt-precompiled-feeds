@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=clash
-PKG_VERSION:=1.17.0
-PKG_RELEASE:=20230630
+PKG_VERSION:=1.16.0
+PKG_RELEASE:=20230925
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -25,7 +25,7 @@ ifeq ($(ARCH),i386)
 	PKG_ARCH:=386
 endif
 ifeq ($(ARCH),x86_64)
-	PKG_ARCH:=amd64-v3
+	PKG_ARCH:=amd64
 endif
 ifeq ($(ARCH),arm)
 	PKG_ARCH:=armv6
@@ -41,7 +41,7 @@ ifeq ($(ARCH),aarch64)
 endif
 
 PKG_SOURCE:=clash-linux-$(PKG_ARCH)-v$(PKG_VERSION).gz
-PKG_SOURCE_URL:=https://github.com/Dreamacro/clash/releases/download/v$(PKG_VERSION)/
+PKG_SOURCE_URL:=https://github.com/MetaCubeX/Clash.Meta/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_HASH:=skip
 
@@ -51,7 +51,7 @@ define Package/clash
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=A rule-based tunnel in Go.
-	URL:=https://github.com/Dreamacro/clash
+	URL:=https://github.com/MetaCubeX/Clash.Meta
 endef
 
 define Package/clash/description

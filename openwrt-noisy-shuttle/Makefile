@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=noisy-shuttle
-PKG_VERSION:=0.2.1
-PKG_RELEASE:=20220929
+PKG_VERSION:=0.2.3
+PKG_RELEASE:=20230828
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # TODO: ARCH: mips, arm
