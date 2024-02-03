@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=clash
-PKG_VERSION:=1.16.0
-PKG_RELEASE:=20230925
+PKG_VERSION:=1.18.1
+PKG_RELEASE:=20240202
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -40,36 +40,49 @@ ifeq ($(ARCH),aarch64)
 	PKG_ARCH:=armv8
 endif
 
-PKG_SOURCE:=clash-linux-$(PKG_ARCH)-v$(PKG_VERSION).gz
-PKG_SOURCE_URL:=https://github.com/MetaCubeX/Clash.Meta/releases/download/v$(PKG_VERSION)/
+PKG_SOURCE:=mihomo-linux-$(PKG_ARCH)-v$(PKG_VERSION).gz
+PKG_SOURCE_URL:=https://github.com/MetaCubeX/mihomo/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_HASH:=skip
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/clash
+define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=A rule-based tunnel in Go.
-	URL:=https://github.com/MetaCubeX/Clash.Meta
+	URL:=https://github.com/MetaCubeX/mihomo
 endef
 
-define Package/clash/description
+define Package/$(PKG_NAME)/description
 	A rule-based tunnel in Go.
 endef
 
 define Build/Prepare
-	gunzip -c $(DL_DIR)/$(PKG_SOURCE) > $(PKG_BUILD_DIR)/clash
-	mv $(DL_DIR)/$(PKG_SOURCE) $(DL_DIR)/clash-linux-$(PKG_ARCH)-$(PKG_VERSION)-$(PKG_RELEASE).gz
+	gunzip -c $(DL_DIR)/$(PKG_SOURCE) >$(PKG_BUILD_DIR)/mihomo
+	mv $(DL_DIR)/$(PKG_SOURCE) $(DL_DIR)/mihomo-linux-$(PKG_ARCH)-$(PKG_VERSION)-$(PKG_RELEASE).gz
 endef
 
 define Build/Compile
 	echo "$(PKG_NAME) Compile Skiped!"
 endef
 
-define Package/clash/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/clash $(1)/usr/bin
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	if [ -f /etc/uci-defaults/$(PKG_NAME) ]; then
+		( . /etc/uci-defaults/$(PKG_NAME) ) && \
+		rm -f /etc/uci-defaults/$(PKG_NAME)
+	fi
+fi
+exit 0
 endef
 
-$(eval $(call BuildPackage,clash))
+define Package/$(PKG_NAME)/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/clash $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/uci-defaults $(1)/etc/uci-defaults/$(PKG_NAME)
+endef
+
+$(eval $(call BuildPackage,$(PKG_NAME)))

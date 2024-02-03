@@ -1,0 +1,3 @@
+#!/bin/sh
+[ ! -f /usr/bin/clash ] && ln -sf mihomo /usr/bin/clash
+exit 0
