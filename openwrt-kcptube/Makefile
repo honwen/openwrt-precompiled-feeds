@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023 honwen <https://github.com/honwen>
+# Copyright (C) 2023-2024 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kcptube
-PKG_VERSION:=0.5.2
-PKG_RELEASE:=20231223
+PKG_VERSION:=0.5.3
+PKG_RELEASE:=20240205
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)
