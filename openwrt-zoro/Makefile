@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019-2022 honwen <https://github.com/honwen>
+# Copyright (C) 2019-2024 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=zoro
 PKG_VERSION:=0.1.0
-PKG_RELEASE:=20211230
+PKG_RELEASE:=20240828
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, i386, x86_64, mips, mipsel
