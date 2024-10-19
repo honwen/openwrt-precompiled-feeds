@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=udphop
-PKG_VERSION:=0.9.7
-PKG_RELEASE:=20240602
+PKG_VERSION:=0.9.9
+PKG_RELEASE:=20241013
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)

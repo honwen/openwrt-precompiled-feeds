@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022-2023 honwen <https://github.com/honwen>
+# Copyright (C) 2022-2024 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gost
-PKG_VERSION:=2.11.5
-PKG_RELEASE:=20230120
+PKG_VERSION:=2.12.0
+PKG_RELEASE:=20241011
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -37,7 +37,7 @@ ifeq ($(ARCH),x86_64)
 	PKG_ARCH:=amd64
 endif
 
-PKG_SOURCE:=gost-linux-$(PKG_ARCH)-$(PKG_VERSION).gz
+PKG_SOURCE:=gost_$(PKG_VERSION)_linux_$(PKG_ARCH).tar.gz
 PKG_SOURCE_URL:=https://github.com/ginuerzh/gost/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_ARCH)-$(PKG_VERSION)
 PKG_HASH:=skip
@@ -45,7 +45,7 @@ PKG_HASH:=skip
 include $(INCLUDE_DIR)/package.mk
 
 define Build/Prepare
-	gzip -dc "$(DL_DIR)/$(PKG_SOURCE)" > $(PKG_BUILD_DIR)/$(PKG_NAME)
+	gzip -dc "$(DL_DIR)/$(PKG_SOURCE)" | tar -C $(PKG_BUILD_DIR)/ -xf -
 endef
 
 define Build/Compile
@@ -65,7 +65,7 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME) $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/gost $(1)/usr/bin/$(PKG_NAME)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
