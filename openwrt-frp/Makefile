@@ -7,10 +7,11 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=frpc
-PKG_VERSION:=0.60.0
-PKG_RELEASE:=20240819
+PKG_VERSION:=0.61.0
+PKG_RELEASE:=20241016
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
+
+PKG_NAME:=frpc
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
 # Golang ARCH: arm[5-7], arm64, 386, amd64, mips, mipsle
