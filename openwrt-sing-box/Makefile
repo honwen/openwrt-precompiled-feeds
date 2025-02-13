@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sing-box
-PKG_VERSION:=1.11.2
+PKG_VERSION:=1.11.3
 PKG_RELEASE:=20250211
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
