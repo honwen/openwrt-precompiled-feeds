@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023-2024 honwen <https://github.com/honwen>
+# Copyright (C) 2023-2025 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=nxtrace
-PKG_VERSION:=1.3.4
-PKG_RELEASE:=20240910
+PKG_VERSION:=1.3.6
+PKG_RELEASE:=20250101
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
