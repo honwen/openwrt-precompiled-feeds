@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wait4x
-PKG_VERSION:=3.1.0
-PKG_RELEASE:=20250311
+PKG_VERSION:=3.2.0
+PKG_RELEASE:=20250323
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
