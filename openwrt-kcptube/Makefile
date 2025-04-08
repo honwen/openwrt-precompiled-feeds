@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kcptube
-PKG_VERSION:=0.7.2
-PKG_RELEASE:=20250301
+PKG_VERSION:=0.7.3
+PKG_RELEASE:=20250406
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)
