@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=nxtrace
-PKG_VERSION:=1.3.6
-PKG_RELEASE:=20250101
+PKG_VERSION:=1.4.2
+PKG_RELEASE:=20250726
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
