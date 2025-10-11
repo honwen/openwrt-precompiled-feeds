@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gost3
-PKG_VERSION:=3.2.4
-PKG_RELEASE:=20250813
+PKG_VERSION:=3.2.5
+PKG_RELEASE:=20251011
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
