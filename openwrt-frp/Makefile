@@ -7,8 +7,8 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_VERSION:=0.61.0
-PKG_RELEASE:=20241016
+PKG_VERSION:=0.65.0
+PKG_RELEASE:=20250925
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_NAME:=frpc

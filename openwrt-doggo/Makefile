@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 honwen <https://github.com/honwen>
+# Copyright (C) 2024-2025 honwen <https://github.com/honwen>
 #
 # See /LICENSE for more information.
 #
@@ -7,8 +7,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=doggo
-PKG_VERSION:=2024-09-29
-PKG_RELEASE:=1.0.5
+PKG_VERSION:=2025-11-01
+PKG_RELEASE:=1.1.2
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)

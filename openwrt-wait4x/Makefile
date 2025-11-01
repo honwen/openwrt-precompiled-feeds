@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023-2024 honwen <https://github.com/honwen>
+# Copyright (C) 2023-2025 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the Apache License v2.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wait4x
-PKG_VERSION:=2.14.2
-PKG_RELEASE:=20240912
+PKG_VERSION:=3.6.0
+PKG_RELEASE:=20251021
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
