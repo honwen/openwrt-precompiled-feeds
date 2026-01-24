@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019-2025 honwen <https://github.com/honwen>
+# Copyright (C) 2019-2026 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the MIT License.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=clash
-PKG_VERSION:=1.19.18
-PKG_RELEASE:=20251221
+PKG_VERSION:=1.19.19
+PKG_RELEASE:=20260116
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
