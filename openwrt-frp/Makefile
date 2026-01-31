@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2020-2024 honwen <https://github.com/honwen>
+# Copyright (C) 2020-2026 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,8 +7,8 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_VERSION:=0.65.0
-PKG_RELEASE:=20250925
+PKG_VERSION:=0.67.0
+PKG_RELEASE:=20260131
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_NAME:=frpc

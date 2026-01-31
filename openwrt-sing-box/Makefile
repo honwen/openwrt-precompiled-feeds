@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023-2025 honwen <https://github.com/honwen>
+# Copyright (C) 2023-2026 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sing-box
-PKG_VERSION:=1.12.14
-PKG_RELEASE:=20251225
+PKG_VERSION:=1.12.18
+PKG_RELEASE:=20260130
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
