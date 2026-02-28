@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023-2025 honwen <https://github.com/honwen>
+# Copyright (C) 2023-2026 honwen <https://github.com/honwen>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=udphop
-PKG_VERSION:=1.1.7
-PKG_RELEASE:=20251129
+PKG_VERSION:=1.1.8
+PKG_RELEASE:=20260207
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)
