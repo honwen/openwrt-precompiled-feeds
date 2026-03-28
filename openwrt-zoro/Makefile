@@ -44,7 +44,7 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Prepare
-	cp -f $(DL_DIR)/$(PKG_SOURCE) $(PKG_BUILD_DIR)/
+	cp -fL $(DL_DIR)/$(PKG_SOURCE) $(PKG_BUILD_DIR)/
 	mv $(DL_DIR)/$(PKG_SOURCE) $(DL_DIR)/$(PKG_NAME)$(PKG_ARCH)-$(PKG_RELEASE)-$(PKG_RELEASE)
 endef
 

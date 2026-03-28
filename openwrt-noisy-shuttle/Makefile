@@ -22,7 +22,7 @@ PKG_HASH:=skip
 include $(INCLUDE_DIR)/package.mk
 
 define Build/Prepare
-	cp -f $(DL_DIR)/$(PKG_SOURCE) $(PKG_BUILD_DIR)/$(PKG_NAME)
+	cp -fL $(DL_DIR)/$(PKG_SOURCE) $(PKG_BUILD_DIR)/$(PKG_NAME)
 	chmod a+x $(PKG_BUILD_DIR)/$(PKG_NAME)
 endef
 
