@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kcptun
-PKG_VERSION:=1.4.1
-PKG_RELEASE:=20260101
+PKG_VERSION:=1.2026.0321
+PKG_RELEASE:=20260321
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -25,7 +25,7 @@ ifeq ($(ARCH),arm)
 	endif
 endif
 ifeq ($(ARCH),aarch64)
-	PKG_ARCH:=arm84
+	PKG_ARCH:=arm64
 endif
 ifeq ($(ARCH),i386)
 	PKG_ARCH:=386
@@ -34,17 +34,16 @@ ifeq ($(ARCH),x86_64)
 	PKG_ARCH:=amd64
 endif
 
-PKG_SOURCE:=kcptun-linux-$(PKG_ARCH)-$(PKG_RELEASE).tar.gz
-PKG_SOURCE_URL:=https://github.com/xtaci/kcptun/releases/download/v$(PKG_RELEASE)/
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_RELEASE)
+PKG_SOURCE:=kcptun-linux-$(PKG_ARCH).tar.gz
+PKG_SOURCE_URL:=https://github.com/honwen/kcptun/releases/download/v$(PKG_VERSION)/
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_HASH:=skip
 
 include $(INCLUDE_DIR)/package.mk
 
 define Build/Prepare
-	tar -C $(PKG_BUILD_DIR)/ -xzf "$(DL_DIR)/$(PKG_SOURCE)"
-	mv $(PKG_BUILD_DIR)/client_* $(PKG_BUILD_DIR)/kcpc
-	mv $(PKG_BUILD_DIR)/server_* $(PKG_BUILD_DIR)/kcps
+	tar -C $(PKG_BUILD_DIR)/ -jxf $(DL_DIR)/$(PKG_SOURCE)
+	mv $(DL_DIR)/$(PKG_SOURCE) $(DL_DIR)/$(PKG_NAME)-linux-musl-$(PKG_VERSION)-$(PKG_RELEASE)-$(PKG_ARCH).tar.gz
 endef
 
 define Build/Compile
@@ -55,7 +54,7 @@ define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=A Stable & Secure Tunnel based on KCP
-	URL:=https://github.com/xtaci/kcptun
+	URL:=https://github.com/honwen/kcptun
 endef
 
 define Package/$(PKG_NAME)/config
@@ -65,7 +64,7 @@ define Package/$(PKG_NAME)/config
 endef
 
 define Package/$(PKG_NAME)/description
-	https://github.com/xtaci/kcptun
+	https://github.com/honwen/kcptun
 endef
 
 define Package/$(PKG_NAME)/install
