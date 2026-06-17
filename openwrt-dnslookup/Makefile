@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022-2025 honwen <https://github.com/honwen>
+# Copyright (C) 2022-2026 honwen <https://github.com/honwen>
 #
 # See /LICENSE for more information.
 #
@@ -7,8 +7,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dnslookup
-PKG_VERSION:=2025-12-18
-PKG_RELEASE:=1.11.2
+PKG_VERSION:=2026-06-01
+PKG_RELEASE:=1.12.0
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel

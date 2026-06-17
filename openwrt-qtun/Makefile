@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=qtun
-PKG_VERSION:=0.2.0
-PKG_RELEASE:=20211211
+PKG_VERSION:=0.3.0
+PKG_RELEASE:=20260609
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_SOURCE:=qtun-v$(PKG_VERSION).$(ARCH)-unknown-linux-musl.tar.xz
