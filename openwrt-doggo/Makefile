@@ -7,8 +7,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=doggo
-PKG_VERSION:=2026-07-23
-PKG_RELEASE:=1.2.0
+PKG_VERSION:=2026-08-10
+PKG_RELEASE:=1.3.0
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)
