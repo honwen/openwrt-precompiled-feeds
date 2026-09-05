@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sing-box
-PKG_VERSION:=1.12.25
-PKG_RELEASE:=20260315
+PKG_VERSION:=1.14.0
+PKG_RELEASE:=20260904
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -34,7 +34,7 @@ ifeq ($(ARCH),aarch64)
 	PKG_ARCH:=arm64
 endif
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-linux-$(PKG_ARCH).tar.gz
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-linux-$(PKG_ARCH)-musl.tar.gz
 PKG_SOURCE_URL:=https://github.com/SagerNet/sing-box/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_HASH:=skip
