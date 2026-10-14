@@ -333,18 +333,111 @@ apply_update() {
     echo -e "         -> updated ${upstream_var} to ${new_ver}, date stamp to current"
 
     if $DO_COMMIT; then
-        local msg="bump ${pkg_name} ${old_ver} -> ${new_ver}"
-        git -C "$BASE_DIR" add "${dir}/Makefile"
-        if git -C "$BASE_DIR" diff --cached --quiet; then
-            echo -e "         -> ${YELLOW}no changes to commit${NC}"
-        else
-            git -C "$BASE_DIR" commit -m "${msg}" \
-                -m "Source: https://github.com/${github_repo}/releases/tag/v${new_ver}" \
-                -m "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>" \
-                >/dev/null 2>&1
-            echo -e "         -> ${GREEN}committed: ${msg}${NC}"
-        fi
+        commit_pkg_update "$dir" "$pkg_name" "$old_ver" "$new_ver" \
+            "https://github.com/${github_repo}/releases/tag/v${new_ver}"
     fi
+}
+
+# ─── commit a version bump ─────────────────────────────────────────────────────
+# Usage: commit_pkg_update <dir> <pkg_name> <old_ver> <new_ver> <source_url>
+commit_pkg_update() {
+    local dir="$1" pkg_name="$2" old_ver="$3" new_ver="$4" source_url="$5"
+    local msg="bump ${pkg_name} ${old_ver} -> ${new_ver}"
+
+    git -C "$BASE_DIR" add "${dir}/Makefile"
+    if git -C "$BASE_DIR" diff --cached --quiet; then
+        echo -e "         -> ${YELLOW}no changes to commit${NC}"
+        return 0
+    fi
+    git -C "$BASE_DIR" commit -m "${msg}" \
+        -m "Source: ${source_url}" \
+        -m "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>" \
+        >/dev/null 2>&1
+    echo -e "         -> ${GREEN}committed: ${msg}${NC}"
+}
+
+# ─── geodata: Download-based package (no PKG_SOURCE_URL) ──────────────────────
+# openwrt-geodata pulls geoip.dat / geosite.dat through `define Download/`
+# blocks, so the generic PKG_SOURCE_URL scan cannot see its upstream. The
+# release tag maps to PKG_VERSION, and both HASH values must be re-fetched from
+# the .sha256sum assets published next to each file, otherwise the build fails
+# with a hash mismatch.
+GEODATA_REPO="Loyalsoldier/v2ray-rules-dat"
+
+# Re-read the hash of every `define Download/` asset from <base_url>/<file>.sha256sum
+refresh_download_hashes() {
+    local mf="$1" base_url="$2"
+    local file hash
+    while read -r file; do
+        [[ -z "$file" ]] && continue
+        hash=$(curl -sfL --connect-timeout 10 --max-time 60 \
+            "${base_url}/${file}.sha256sum" 2>/dev/null | awk '{print $1}')
+        if [[ -z "$hash" ]]; then
+            echo -e "         -> ${YELLOW}warning: no sha256sum found for ${file}${NC}"
+            continue
+        fi
+        awk -v f="$file" -v h="$hash" '
+            $0 ~ "^[[:space:]]*URL_FILE:=" f "$" { want=1; print; next }
+            want && $0 ~ "^[[:space:]]*HASH:=" { sub(/HASH:=.*/, "HASH:=" h); want=0; print; next }
+            { print }
+        ' "$mf" > "${mf}.tmp" && mv "${mf}.tmp" "$mf"
+        echo -e "         -> ${file} HASH -> ${hash:0:16}..."
+    done < <(sed -n 's/^[[:space:]]*URL_FILE:=//p' "$mf")
+}
+
+process_geodata() {
+    local dir="$1"
+    local mf="${dir}/Makefile"
+    local pkg_dir
+    pkg_dir="$(basename "$dir")"
+
+    local pkg_name current_ver latest_ver
+    pkg_name=$(make_get_var "$mf" "PKG_NAME")
+    current_ver=$(make_get_var "$mf" "PKG_VERSION")
+
+    if [[ -z "$pkg_name" || -z "$current_ver" ]]; then
+        echo -e "  ${YELLOW}skip${NC}  ${pkg_dir}: PKG_NAME or PKG_VERSION not found"
+        return 1
+    fi
+
+    if is_locked "$pkg_name" "$current_ver"; then
+        local lock_info="🔒"
+        [[ "${VERSION_LOCKS[$pkg_name]}" != "*" ]] && lock_info="🔒 @${VERSION_LOCKS[$pkg_name]}"
+        echo -e "  ${CYAN}lock${NC}  ${pkg_dir} (${pkg_name}): ${current_ver} ${lock_info}"
+        return 3
+    fi
+
+    if [[ -n "${LATEST_CACHE[$GEODATA_REPO]:-}" ]]; then
+        latest_ver="${LATEST_CACHE[$GEODATA_REPO]}"
+    else
+        latest_ver=$(github_latest_release "$GEODATA_REPO")
+        LATEST_CACHE[$GEODATA_REPO]="$latest_ver"
+    fi
+
+    if [[ -z "$latest_ver" ]]; then
+        echo -e "  ${RED}fail${NC}  ${pkg_dir} (${pkg_name}): unable to fetch latest release from ${GEODATA_REPO}"
+        return 1
+    fi
+
+    if version_lt "$current_ver" "$latest_ver"; then
+        echo -e "  ${GREEN}UPDATE${NC} ${pkg_dir} (${pkg_name}): ${current_ver} -> ${BOLD}${latest_ver}${NC}  [${GEODATA_REPO}]"
+
+        if $DO_UPDATE; then
+            sed -i "s/^\(PKG_VERSION:=\).*/\1${latest_ver}/" "$mf"
+            sed -i "s/^\(PKG_RELEASE:=\).*/\1${TODAY}/" "$mf"
+            echo -e "         -> updated PKG_VERSION to ${latest_ver}, PKG_RELEASE to ${TODAY}"
+            refresh_download_hashes "$mf" \
+                "https://github.com/${GEODATA_REPO}/releases/download/${latest_ver}"
+            if $DO_COMMIT; then
+                commit_pkg_update "$dir" "$pkg_name" "$current_ver" "$latest_ver" \
+                    "https://github.com/${GEODATA_REPO}/releases/tag/${latest_ver}"
+            fi
+        fi
+        return 2
+    fi
+
+    echo -e "  ok     ${pkg_dir} (${pkg_name}): ${current_ver}  [${GEODATA_REPO}]"
+    return 0
 }
 
 # ─── main ──────────────────────────────────────────────────────────────────────
@@ -389,7 +482,10 @@ main() {
     local total=0 skipped=0 updates=0 locked=0
     for d in "${dirs[@]}"; do
         local rc=0
-        process_makefile "$d" || rc=$?
+        case "$(basename "$d")" in
+            openwrt-geodata) process_geodata "$d" || rc=$? ;;
+            *)               process_makefile "$d" || rc=$? ;;
+        esac
         total=$((total + 1))
         case $rc in
             0)  ;;                             # up-to-date
