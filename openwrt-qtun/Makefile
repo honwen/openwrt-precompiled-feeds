@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=qtun
 PKG_VERSION:=0.3.0
-PKG_RELEASE:=20260609
+PKG_RELEASE:=20261022
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
-PKG_SOURCE:=qtun-v$(PKG_VERSION).$(ARCH)-unknown-linux-musl.tar.xz
+PKG_SOURCE:=qtun-$(ARCH)-unknown-linux-musl-v$(PKG_VERSION).zip
 PKG_SOURCE_URL:=https://github.com/shadowsocks/qtun/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(ARCH)
 PKG_HASH:=skip
@@ -20,7 +20,9 @@ PKG_HASH:=skip
 include $(INCLUDE_DIR)/package.mk
 
 define Build/Prepare
-	tar -C $(PKG_BUILD_DIR)/ -Jxf $(DL_DIR)/$(PKG_SOURCE)
+	unzip -o -d $(PKG_BUILD_DIR)/ $(DL_DIR)/$(PKG_SOURCE)
+	tar -C $(PKG_BUILD_DIR)/ -Jxf $(PKG_BUILD_DIR)/qtun-v$(PKG_VERSION).$(ARCH)-unknown-linux-musl.tar.xz
+	rm -f $(PKG_BUILD_DIR)/qtun-v$(PKG_VERSION).$(ARCH)-unknown-linux-musl.tar.xz*
 endef
 
 define Build/Compile
