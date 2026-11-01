@@ -180,8 +180,27 @@ make_get_version_var() {
     fi
 }
 
+# ─── release tag cache ────────────────────────────────────────────────────────
+# All release-like tags for a repo, newest first, with any leading 'v'/'V'
+# stripped. One `git ls-remote` per repo (no API rate limit).
+declare -A TAGS_CACHE
+declare -A TAGS_LOADED
+load_tags() {
+    local owner_repo="$1"
+    [[ -n "${TAGS_LOADED[$owner_repo]:-}" ]] && return 0
+    TAGS_LOADED[$owner_repo]=1
+
+    TAGS_CACHE[$owner_repo]=$(git ls-remote --tags "https://github.com/${owner_repo}.git" 2>/dev/null \
+        | sed -n 's|.*refs/tags/||p' \
+        | sed 's|\^{}||' \
+        | grep -vE 'rc|alpha|beta|dev|pre|canary|nightly|not-quite|test|experimental|unstable|draft' \
+        | grep -E '^[vV]?[0-9]' \
+        | sed 's|^[vV]||' \
+        | sort -Vu | tac || true)
+}
+
 # Fetch the latest stable release tag for a GitHub repo.
-# Method 1 (primary): git ls-remote --tags (no rate limit)
+# Method 1 (primary): cached git ls-remote --tags (no rate limit)
 # Method 2 (fallback): GitHub API /releases/latest
 # Strips leading 'v'/'V' from the tag.
 # Returns empty string on failure.
@@ -190,18 +209,9 @@ github_latest_release() {
     local tag
 
     # ── method 1: git ls-remote (no rate limit) ──────────────────────────
-    local all_tags
-    all_tags=$(git ls-remote --tags "https://github.com/${owner_repo}.git" 2>/dev/null \
-        | sed -n 's|.*refs/tags/||p' \
-        | sed 's|\^{}||' \
-        | grep -vE 'rc|alpha|beta|dev|pre|canary|nightly|not-quite|test|experimental|unstable|draft')
-
-    if [[ -n "$all_tags" ]]; then
-        # Pick the highest version-like tag (starts with digits or v+digit)
-        tag=$(echo "$all_tags" \
-            | grep -E '^(v?[0-9]|[0-9])' \
-            | sort -V | tail -1)
-    fi
+    load_tags "$owner_repo"
+    tag="${TAGS_CACHE[$owner_repo]:-}"
+    tag="${tag%%$'\n'*}"
 
     # ── method 2: fallback to GitHub API ─────────────────────────────────
     if [[ -z "$tag" ]]; then
@@ -233,15 +243,166 @@ github_latest_release() {
     echo "$tag"
 }
 
+# ─── download URL probing ─────────────────────────────────────────────────────
+# A git tag can exist while its release assets are not published yet (bad case:
+# nxtrace v1.7.5, whose assets 404 while v1.7.4 is fine). Every candidate
+# version is therefore verified against its real download URL before it is
+# reported or applied.
+declare -A PROBE_CACHE
+
+# Probe an HTTP(S) URL.
+# Returns: 0 = exists (2xx), 1 = definitely missing (404/410), 2 = unknown.
+probe_url() {
+    local url="$1" code get_code
+    if [[ -n "${PROBE_CACHE[$url]:-}" ]]; then
+        case "${PROBE_CACHE[$url]}" in
+            ok)      return 0 ;;
+            missing) return 1 ;;
+            *)       return 2 ;;
+        esac
+    fi
+
+    code=$(curl -sIL -o /dev/null -w '%{http_code}' \
+        --connect-timeout 8 --max-time 20 "$url" 2>/dev/null) || code="000"
+
+    # Some CDNs reject HEAD; retry with a one-byte ranged GET.
+    if [[ "$code" == "403" || "$code" == "405" || "$code" == "000" ]]; then
+        get_code=$(curl -sL -o /dev/null -r 0-0 -w '%{http_code}' \
+            --connect-timeout 8 --max-time 20 "$url" 2>/dev/null) || get_code="000"
+        [[ "$get_code" != "000" ]] && code="$get_code"
+    fi
+
+    case "$code" in
+        2??)     PROBE_CACHE[$url]="ok";      return 0 ;;
+        404|410) PROBE_CACHE[$url]="missing"; return 1 ;;
+        *)       PROBE_CACHE[$url]="unknown"; return 2 ;;
+    esac
+}
+
+# Resolve a concrete download URL for <version> from PKG_SOURCE_URL and
+# PKG_SOURCE, substituting the Makefile variables used by this feed.
+# Returns 1 if the URL cannot be constructed, e.g. because the file name
+# embeds a per-release commit hash (gost-plugin, tcping, pingtunnel) or an
+# unknown variable.
+make_download_url() {
+    local f="$1" upstream_var="$2" ver="$3"
+    local pkg_version pkg_release pkg_name pkg_arch pkg_libc arch
+    local url_tmpl src_tmpl out ph
+
+    pkg_version=$(make_get_var "$f" "PKG_VERSION")
+    pkg_release=$(make_get_var "$f" "PKG_RELEASE")
+    pkg_name=$(make_get_var "$f" "PKG_NAME")
+    pkg_arch=$(make_get_var "$f" "PKG_ARCH")
+    pkg_libc=$(make_get_var "$f" "PKG_LIBC")
+    url_tmpl=$(make_get_var "$f" "PKG_SOURCE_URL")
+    src_tmpl=$(make_get_var "$f" "PKG_SOURCE")
+
+    [[ -z "$url_tmpl" || -z "$src_tmpl" ]] && return 1
+
+    if [[ "$upstream_var" == "PKG_RELEASE" ]]; then
+        pkg_release="$ver"
+    else
+        # A commit hash in the file name changes with every release, so the
+        # current value says nothing about a future tag.
+        if [[ "$src_tmpl" == *'$(PKG_RELEASE)'* && ! "$pkg_release" =~ ^[0-9]{8}$ ]]; then
+            return 1
+        fi
+        pkg_version="$ver"
+    fi
+
+    # Pick a representative architecture: x86_64 maps to amd64 / x64 / 64
+    # depending on the upstream naming, so read the mapping from the Makefile.
+    if [[ "$pkg_arch" == '$(ARCH)' || -z "$pkg_arch" ]]; then
+        pkg_arch=$(awk '
+            /^ifeq[[:space:]]*\(\$\(ARCH\),x86_64\)[[:space:]]*$/ { inblock = 1; next }
+            inblock && /^endif/ { inblock = 0; next }
+            inblock && /^[[:space:]]*PKG_ARCH[[:space:]]*:?=/ {
+                sub(/^[[:space:]]*PKG_ARCH[[:space:]]*:?=[[:space:]]*/, "")
+                print
+                exit
+            }
+        ' "$f")
+        pkg_arch="${pkg_arch:-x86_64}"
+    fi
+    arch="x86_64"
+    pkg_libc="${pkg_libc:-musl}"
+
+    out="${url_tmpl}${src_tmpl}"
+    ph='$(PKG_VERSION)'; out="${out//$ph/$pkg_version}"
+    ph='$(PKG_RELEASE)'; out="${out//$ph/$pkg_release}"
+    ph='$(PKG_NAME)';    out="${out//$ph/$pkg_name}"
+    ph='$(PKG_ARCH)';    out="${out//$ph/$pkg_arch}"
+    ph='$(ARCH)';        out="${out//$ph/$arch}"
+    ph='$(PKG_LIBC)';    out="${out//$ph/$pkg_libc}"
+
+    # Any remaining Makefile variable means this package cannot be probed.
+    [[ "$out" == *'$('* ]] && return 1
+
+    echo "$out"
+}
+
+# Verify that <version> has a downloadable asset. Probe contract:
+# 0 = exists, 1 = missing, 2 = cannot verify.
+probe_download_url() {
+    local f="$1" upstream_var="$2" ver="$3"
+    local url
+    url=$(make_download_url "$f" "$upstream_var" "$ver") || return 2
+    probe_url "$url"
+}
+
+# Walk tags newest -> oldest and stop at the first one the given probe accepts.
+# Probe contract: 0 = exists, 1 = missing, 2 = cannot verify (accept).
+# Sets LT_TAG (empty if none), LT_SKIPPED (newest tag with missing assets) and
+# LT_UNVERIFIED (1 if the accepted tag could not be probed).
+LT_TAG=""
+LT_SKIPPED=""
+LT_UNVERIFIED=0
+
+latest_tag_with_probe() {
+    local owner_repo="$1"; shift
+    local tag rc attempts=0
+
+    LT_TAG=""
+    LT_SKIPPED=""
+    LT_UNVERIFIED=0
+
+    load_tags "$owner_repo"
+    while IFS= read -r tag; do
+        [[ -z "$tag" ]] && continue
+        rc=0
+        "$@" "$tag" || rc=$?
+        case $rc in
+            0) LT_TAG="$tag"; return 0 ;;
+            2)
+                # Cannot construct/verify the URL; fall back to accepting the
+                # tag but remember that it was not verified.
+                LT_UNVERIFIED=1
+                LT_TAG="$tag"
+                return 0
+                ;;
+            *)
+                [[ -z "$LT_SKIPPED" ]] && LT_SKIPPED="$tag"
+                attempts=$((attempts + 1))
+                [[ $attempts -ge 5 ]] && break
+                ;;
+        esac
+    done <<< "${TAGS_CACHE[$owner_repo]:-}"
+
+    # No tags available from git (offline or unusual repo): fall back to the
+    # GitHub API without asset verification.
+    if [[ -z "${TAGS_CACHE[$owner_repo]:-}" ]]; then
+        LT_TAG=$(github_latest_release "$owner_repo")
+        [[ -n "$LT_TAG" ]] && LT_UNVERIFIED=1
+    fi
+    return 0
+}
+
 # Compare two version strings using sort -V.
 # Returns 0 (true) if $1 < $2 (i.e. an update is available).
 version_lt() {
     local a="$1" b="$2"
     [[ "$a" != "$b" ]] && [[ "$(printf '%s\n%s\n' "$a" "$b" | sort -V | head -1)" == "$a" ]]
 }
-
-# ─── API result cache (avoid double-fetching in summary) ──────────────────────
-declare -A LATEST_CACHE
 
 # ─── process one Makefile ──────────────────────────────────────────────────────
 # Returns: 0 = up-to-date, 1 = skipped/error, 2 = update available, 3 = locked
@@ -285,32 +446,48 @@ process_makefile() {
         return 3
     fi
 
-    # Fetch latest release (use cache if available)
-    local latest_ver
-    if [[ -n "${LATEST_CACHE[$github_repo]:-}" ]]; then
-        latest_ver="${LATEST_CACHE[$github_repo]}"
-    else
-        latest_ver=$(github_latest_release "$github_repo")
-        LATEST_CACHE[$github_repo]="$latest_ver"
-    fi
+    # Find the newest release that actually has a downloadable asset. A tag
+    # can exist while its assets are unpublished (bad case: nxtrace v1.7.5).
+    latest_tag_with_probe "$github_repo" probe_download_url "$mf" "$upstream_var"
+    local latest_ver="$LT_TAG"
 
     if [[ -z "$latest_ver" ]]; then
-        echo -e "  ${RED}fail${NC}  ${pkg_dir} (${pkg_name}): unable to fetch latest release from ${github_repo}"
+        echo -e "  ${RED}fail${NC}  ${pkg_dir} (${pkg_name}): no downloadable release asset found  [${github_repo}]"
+        local sample_url
+        sample_url=$(make_download_url "$mf" "$upstream_var" "$LT_SKIPPED") || sample_url=""
+        [[ -n "$sample_url" ]] && echo -e "         -> expected (404): ${sample_url}"
         return 1
+    fi
+
+    # Also check the version currently pinned in the Makefile; a missing asset
+    # means the package cannot currently be built.
+    local cur_rc=0
+    probe_download_url "$mf" "$upstream_var" "$current_ver" || cur_rc=$?
+
+    if [[ -n "$LT_SKIPPED" && "$LT_SKIPPED" != "$current_ver" ]]; then
+        echo -e "  ${YELLOW}note${NC}  ${pkg_dir} (${pkg_name}): ${LT_SKIPPED} has no downloadable asset; newest published is ${latest_ver}"
     fi
 
     # Compare versions
     if version_lt "$current_ver" "$latest_ver"; then
         echo -e "  ${GREEN}UPDATE${NC} ${pkg_dir} (${pkg_name}): ${current_ver} -> ${BOLD}${latest_ver}${NC}  [${github_repo}]"
+        if [[ "$LT_UNVERIFIED" == "1" ]]; then
+            echo -e "         -> ${YELLOW}warning: download URL could not be verified${NC}"
+        fi
 
         if $DO_UPDATE; then
             apply_update "$dir" "$mf" "$upstream_var" "$current_ver" "$latest_ver" "$pkg_name" "$github_repo"
         fi
         return 2
-    else
-        echo -e "  ok     ${pkg_dir} (${pkg_name}): ${current_ver}  [${github_repo}]"
-        return 0
     fi
+
+    if [[ $cur_rc -eq 1 ]]; then
+        echo -e "  ${RED}warn${NC}  ${pkg_dir} (${pkg_name}): ${current_ver} has no downloadable asset (newest published: ${latest_ver})"
+        return 1
+    fi
+
+    echo -e "  ok     ${pkg_dir} (${pkg_name}): ${current_ver}  [${github_repo}]"
+    return 0
 }
 
 # ─── apply update to Makefile ──────────────────────────────────────────────────
@@ -333,18 +510,126 @@ apply_update() {
     echo -e "         -> updated ${upstream_var} to ${new_ver}, date stamp to current"
 
     if $DO_COMMIT; then
-        local msg="bump ${pkg_name} ${old_ver} -> ${new_ver}"
-        git -C "$BASE_DIR" add "${dir}/Makefile"
-        if git -C "$BASE_DIR" diff --cached --quiet; then
-            echo -e "         -> ${YELLOW}no changes to commit${NC}"
-        else
-            git -C "$BASE_DIR" commit -m "${msg}" \
-                -m "Source: https://github.com/${github_repo}/releases/tag/v${new_ver}" \
-                -m "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>" \
-                >/dev/null 2>&1
-            echo -e "         -> ${GREEN}committed: ${msg}${NC}"
-        fi
+        commit_pkg_update "$dir" "$pkg_name" "$old_ver" "$new_ver" \
+            "https://github.com/${github_repo}/releases/tag/v${new_ver}"
     fi
+}
+
+# ─── commit a version bump ─────────────────────────────────────────────────────
+# Usage: commit_pkg_update <dir> <pkg_name> <old_ver> <new_ver> <source_url>
+commit_pkg_update() {
+    local dir="$1" pkg_name="$2" old_ver="$3" new_ver="$4" source_url="$5"
+    local msg="bump ${pkg_name} ${old_ver} -> ${new_ver}"
+
+    git -C "$BASE_DIR" add "${dir}/Makefile"
+    if git -C "$BASE_DIR" diff --cached --quiet; then
+        echo -e "         -> ${YELLOW}no changes to commit${NC}"
+        return 0
+    fi
+    git -C "$BASE_DIR" commit -m "${msg}" \
+        -m "Source: ${source_url}" \
+        -m "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>" \
+        >/dev/null 2>&1
+    echo -e "         -> ${GREEN}committed: ${msg}${NC}"
+}
+
+# ─── geodata: Download-based package (no PKG_SOURCE_URL) ──────────────────────
+# openwrt-geodata pulls geoip.dat / geosite.dat through `define Download/`
+# blocks, so the generic PKG_SOURCE_URL scan cannot see its upstream. The
+# release tag maps to PKG_VERSION, and both HASH values must be re-fetched from
+# the .sha256sum assets published next to each file, otherwise the build fails
+# with a hash mismatch.
+GEODATA_REPO="Loyalsoldier/v2ray-rules-dat"
+
+# Verify a geodata release by probing its geoip.dat asset.
+probe_geodata_asset() {
+    probe_url "https://github.com/${GEODATA_REPO}/releases/download/$1/geoip.dat"
+}
+
+# Re-read the hash of every `define Download/` asset from <base_url>/<file>.sha256sum
+refresh_download_hashes() {
+    local mf="$1" base_url="$2"
+    local file hash
+    while read -r file; do
+        [[ -z "$file" ]] && continue
+        hash=$(curl -sfL --connect-timeout 10 --max-time 60 \
+            "${base_url}/${file}.sha256sum" 2>/dev/null | awk '{print $1}')
+        if [[ -z "$hash" ]]; then
+            echo -e "         -> ${YELLOW}warning: no sha256sum found for ${file}${NC}"
+            continue
+        fi
+        awk -v f="$file" -v h="$hash" '
+            $0 ~ "^[[:space:]]*URL_FILE:=" f "$" { want=1; print; next }
+            want && $0 ~ "^[[:space:]]*HASH:=" { sub(/HASH:=.*/, "HASH:=" h); want=0; print; next }
+            { print }
+        ' "$mf" > "${mf}.tmp" && mv "${mf}.tmp" "$mf"
+        echo -e "         -> ${file} HASH -> ${hash:0:16}..."
+    done < <(sed -n 's/^[[:space:]]*URL_FILE:=//p' "$mf")
+}
+
+process_geodata() {
+    local dir="$1"
+    local mf="${dir}/Makefile"
+    local pkg_dir
+    pkg_dir="$(basename "$dir")"
+
+    local pkg_name current_ver latest_ver
+    pkg_name=$(make_get_var "$mf" "PKG_NAME")
+    current_ver=$(make_get_var "$mf" "PKG_VERSION")
+
+    if [[ -z "$pkg_name" || -z "$current_ver" ]]; then
+        echo -e "  ${YELLOW}skip${NC}  ${pkg_dir}: PKG_NAME or PKG_VERSION not found"
+        return 1
+    fi
+
+    if is_locked "$pkg_name" "$current_ver"; then
+        local lock_info="🔒"
+        [[ "${VERSION_LOCKS[$pkg_name]}" != "*" ]] && lock_info="🔒 @${VERSION_LOCKS[$pkg_name]}"
+        echo -e "  ${CYAN}lock${NC}  ${pkg_dir} (${pkg_name}): ${current_ver} ${lock_info}"
+        return 3
+    fi
+
+    latest_tag_with_probe "$GEODATA_REPO" probe_geodata_asset
+    latest_ver="$LT_TAG"
+
+    if [[ -z "$latest_ver" ]]; then
+        echo -e "  ${RED}fail${NC}  ${pkg_dir} (${pkg_name}): no downloadable release asset found  [${GEODATA_REPO}]"
+        [[ -n "$LT_SKIPPED" ]] && echo -e "         -> expected (404): https://github.com/${GEODATA_REPO}/releases/download/${LT_SKIPPED}/geoip.dat"
+        return 1
+    fi
+
+    # Also check the version currently pinned in the Makefile.
+    local cur_rc=0
+    probe_geodata_asset "$current_ver" || cur_rc=$?
+
+    if [[ -n "$LT_SKIPPED" && "$LT_SKIPPED" != "$current_ver" ]]; then
+        echo -e "  ${YELLOW}note${NC}  ${pkg_dir} (${pkg_name}): ${LT_SKIPPED} has no downloadable asset; newest published is ${latest_ver}"
+    fi
+
+    if version_lt "$current_ver" "$latest_ver"; then
+        echo -e "  ${GREEN}UPDATE${NC} ${pkg_dir} (${pkg_name}): ${current_ver} -> ${BOLD}${latest_ver}${NC}  [${GEODATA_REPO}]"
+
+        if $DO_UPDATE; then
+            sed -i "s/^\(PKG_VERSION:=\).*/\1${latest_ver}/" "$mf"
+            sed -i "s/^\(PKG_RELEASE:=\).*/\1${TODAY}/" "$mf"
+            echo -e "         -> updated PKG_VERSION to ${latest_ver}, PKG_RELEASE to ${TODAY}"
+            refresh_download_hashes "$mf" \
+                "https://github.com/${GEODATA_REPO}/releases/download/${latest_ver}"
+            if $DO_COMMIT; then
+                commit_pkg_update "$dir" "$pkg_name" "$current_ver" "$latest_ver" \
+                    "https://github.com/${GEODATA_REPO}/releases/tag/${latest_ver}"
+            fi
+        fi
+        return 2
+    fi
+
+    if [[ $cur_rc -eq 1 ]]; then
+        echo -e "  ${RED}warn${NC}  ${pkg_dir} (${pkg_name}): ${current_ver} has no downloadable asset (newest published: ${latest_ver})"
+        return 1
+    fi
+
+    echo -e "  ok     ${pkg_dir} (${pkg_name}): ${current_ver}  [${GEODATA_REPO}]"
+    return 0
 }
 
 # ─── main ──────────────────────────────────────────────────────────────────────
@@ -389,7 +674,10 @@ main() {
     local total=0 skipped=0 updates=0 locked=0
     for d in "${dirs[@]}"; do
         local rc=0
-        process_makefile "$d" || rc=$?
+        case "$(basename "$d")" in
+            openwrt-geodata) process_geodata "$d" || rc=$? ;;
+            *)               process_makefile "$d" || rc=$? ;;
+        esac
         total=$((total + 1))
         case $rc in
             0)  ;;                             # up-to-date
@@ -405,7 +693,7 @@ main() {
         echo -e "         ${CYAN}${locked}${NC} locked (skipped)"
     fi
     if [[ $skipped -gt 0 ]]; then
-        echo -e "         ${YELLOW}${skipped}${NC} skipped (no releases source / API error)"
+        echo -e "         ${YELLOW}${skipped}${NC} skipped (no releases source / no downloadable asset / API error)"
     fi
 
     if [[ $updates -gt 0 ]] && ! $DO_UPDATE; then

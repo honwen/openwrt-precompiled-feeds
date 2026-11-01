@@ -9,15 +9,18 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=udphop
 PKG_VERSION:=1.1.8
-PKG_RELEASE:=20260207
+PKG_RELEASE:=20261022
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)
 ifeq ($(ARCH),x86_64)
 	PKG_ARCH:=x64
 endif
+ifeq ($(ARCH),aarch64)
+	PKG_ARCH:=arm64
+endif
 
-PKG_SOURCE:=$(PKG_NAME)-linux-musl-$(PKG_ARCH).tar.gz
+PKG_SOURCE:=$(PKG_NAME)-linux-musl-$(PKG_ARCH).tar.bz2
 PKG_SOURCE_URL:=https://github.com/cnbatch/udphop/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(ARCH)
 PKG_HASH:=skip
@@ -25,7 +28,7 @@ PKG_HASH:=skip
 include $(INCLUDE_DIR)/package.mk
 
 define Build/Prepare
-	tar -C $(PKG_BUILD_DIR)/ -zxf $(DL_DIR)/$(PKG_SOURCE)
+	tar -C $(PKG_BUILD_DIR)/ -jxf $(DL_DIR)/$(PKG_SOURCE)
 endef
 
 define Build/Compile

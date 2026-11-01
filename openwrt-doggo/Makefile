@@ -7,8 +7,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=doggo
-PKG_VERSION:=2026-09-04
-PKG_RELEASE:=1.4.0
+PKG_VERSION:=2026-10-25
+PKG_RELEASE:=1.4.2
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_ARCH:=$(ARCH)
@@ -16,13 +16,10 @@ ifeq ($(ARCH),mipsel)
 	PKG_ARCH:=mipsle
 endif
 ifeq ($(ARCH),arm)
-	PKG_ARCH:=arm6
-endif
-ifeq ($(ARCH),aarch64)
-	PKG_ARCH:=arm64
+	PKG_ARCH:=armv6
 endif
 
-PKG_SOURCE:=$(PKG_NAME)_$(PKG_RELEASE)_Linux_$(PKG_ARCH).tar.gz
+PKG_SOURCE:=$(PKG_NAME)-linux-$(PKG_ARCH).tar.gz
 PKG_SOURCE_URL:=https://github.com/mr-karan/doggo/releases/download/v$(PKG_RELEASE)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_RELEASE)
 PKG_HASH:=skip
@@ -42,7 +39,7 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Prepare
-	gzip -dc "$(DL_DIR)/$(PKG_SOURCE)" | tar -C $(PKG_BUILD_DIR)/ --strip-components 1 -xf -
+	gzip -dc "$(DL_DIR)/$(PKG_SOURCE)" | tar -C $(PKG_BUILD_DIR)/ -xf -
 endef
 
 define Build/Compile

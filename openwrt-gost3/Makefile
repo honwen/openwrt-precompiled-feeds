@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gost3
-PKG_VERSION:=3.3.0
-PKG_RELEASE:=20260904
+PKG_VERSION:=3.3.1-1
+PKG_RELEASE:=20261022
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
@@ -28,7 +28,7 @@ ifeq ($(ARCH),arm)
 	endif
 endif
 ifeq ($(ARCH),aarch64)
-	PKG_ARCH:=armv8
+	PKG_ARCH:=arm64
 endif
 ifeq ($(ARCH),i386)
 	PKG_ARCH:=386
@@ -38,7 +38,7 @@ ifeq ($(ARCH),x86_64)
 endif
 
 PKG_SOURCE:=gost_$(PKG_VERSION)_linux_$(PKG_ARCH).tar.gz
-PKG_SOURCE_URL:=https://github.com/go-gost/gost/releases/download/v$(PKG_VERSION)/
+PKG_SOURCE_URL:=https://github.com/honwen/gost3/releases/download/v$(PKG_VERSION)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_ARCH)-$(PKG_VERSION)
 PKG_HASH:=skip
 
@@ -56,11 +56,11 @@ define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=GO Simple Tunnel
-	URL:=https://github.com/go-gost/gost
+	URL:=https://github.com/honwen/gost3
 endef
 
 define Package/$(PKG_NAME)/description
-	https://github.com/go-gost/gost
+	https://github.com/honwen/gost3
 endef
 
 define Package/$(PKG_NAME)/install
