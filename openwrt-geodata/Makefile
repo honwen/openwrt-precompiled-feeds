@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=geodata
-PKG_VERSION:=202610312203
-PKG_RELEASE:=20261102
+PKG_VERSION:=202611032326
+PKG_RELEASE:=20261105
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 PKG_LICENSE:=CC-BY-SA-4.0 MIT
@@ -24,7 +24,7 @@ define Download/geoip
   URL:=https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/$(GEOIP_VER)/
   URL_FILE:=geoip.dat
   FILE:=$(GEOIP_FILE)
-  HASH:=fbf747a085be25eb61ecac8c27140b4ab0bf8181af6fdb104caa325bd93cf117
+  HASH:=06c1d50d0013af57ffe78c5af93f0dc6aa998890f3ee231393816f9117810c4a
 endef
 
 GEOSITE_VER:=$(PKG_VERSION)
@@ -33,7 +33,7 @@ define Download/geosite
   URL:=https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/$(GEOSITE_VER)/
   URL_FILE:=geosite.dat
   FILE:=$(GEOSITE_FILE)
-  HASH:=de0ed52484ee4e793b63e3f9d9de9677e90b289483d96d94fa7f2d7503bdced0
+  HASH:=0b2a5c5b82b031f6b079f9a5b47814914f3fc94d6c689d081b8634624cfe1d55
 endef
 
 define Package/geodata
