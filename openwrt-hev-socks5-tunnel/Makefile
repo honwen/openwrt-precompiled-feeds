@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hev-socks5-tunnel
-PKG_VERSION:=2.19.3
-PKG_RELEASE:=20261025
+PKG_VERSION:=2.20.0
+PKG_RELEASE:=20261114
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 # OpenWrt ARCH: arm, aarch64, i386, x86_64, mips, mipsel
